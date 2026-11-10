@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Crisis Command - 50-Year Climate Response</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#080c14',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            accent: '#06b6d4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #060911;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        .map-pin {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .map-pin:hover {
+            transform: scale(1.3);
+        }
+        .radar-sweep {
+            position: relative;
+            overflow: hidden;
+        }
+        .radar-sweep::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent 0%, transparent 80%, rgba(6, 182, 212, 0.1) 100%);
+            animation: sweep 12s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes sweep {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden text-slate-100">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-950/95 backdrop-blur sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <!-- Title / Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-cyan-400">
+                    <i class="fa-solid fa-earth-americas text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-wide text-white uppercase flex items-center gap-2">
+                        Global Crisis Command
+                        <span class="text-[10px] font-semibold px-2 py-0.5 bg-red-950/80 border border-red-800/60 text-red-400 rounded-md">50-YEAR DIRECTIVE</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">UN Strategic Climate Response Agency</p>
+                </div>
+            </div>
+
+            <!-- Global Status Bar -->
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
+                <!-- Timeline Counter -->
+                <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+                    <span class="text-slate-400 uppercase font-semibold text-[10px]">Timeline</span>
+                    <span class="mono text-base font-bold text-cyan-400">Year <span id="ui-year">1</span><span class="text-slate-500 text-xs">/50</span></span>
+                </div>
+
+                <!-- Global Temp -->
+                <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+                    <span class="text-slate-400 uppercase font-semibold text-[10px]">Temp Rise</span>
+                    <span class="mono text-base font-bold text-amber-400 flex items-center gap-1">
+                        +<span id="ui-temp">1.10</span>°C
+                    </span>
+                </div>
+
+                <!-- Action Points (AP) -->
+                <div class="bg-slate-900 border border-cyan-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+                    <span class="text-cyan-400 font-bold uppercase text-[10px] flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> AP</span>
+                    <span class="mono text-base font-bold text-white"><span id="ui-ap">2</span>/2</span>
+                </div>
+
+                <!-- Next Crisis HUD -->
+                <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+                    <span class="text-slate-400 uppercase font-semibold text-[10px]">Next Event</span>
+                    <span id="ui-next-event-tag" class="mono text-xs font-bold text-red-400 flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Year 5
+                    </span>
+                </div>
+
+                <!-- Budget -->
+                <div class="bg-slate-900 border border-emerald-500/30 px-3 py-1.5 rounded-lg flex items-center gap-2.5">
+                    <span class="text-slate-400 uppercase font-semibold text-[10px]">Budget</span>
+                    <span class="mono text-base font-bold text-emerald-400">$<span id="ui-budget">400</span>M</span>
+                </div>
+
+                <!-- Restart Button -->
+                <button onclick="confirmRestart()" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-red-400 rounded-lg transition" title="Restart Game">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Command Layout -->
+    <main class="max-w-7xl w-full mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
+
+        <!-- Left Column: SVG World Map & Action Catalog (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+
+            <!-- WORLD MAP CONTAINER -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 radar-sweep flex flex-col gap-3 relative shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                    <h2 class="text-xs uppercase font-bold tracking-wider text-slate-300 flex items-center gap-2">
+                        <span class="relative flex h-2.5 w-2.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
+                        </span>
+                        Geographic Operations & Sector Map
+                    </h2>
+                    <div class="flex items-center gap-3 text-[10px] mono">
+                        <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-circle text-[8px]"></i> Green</span>
+                        <span class="flex items-center gap-1 text-amber-400"><i class="fa-solid fa-circle text-[8px]"></i> Yellow</span>
+                        <span class="flex items-center gap-1 text-red-500"><i class="fa-solid fa-circle text-[8px]"></i> Red (Withdrawn)</span>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Map Canvas -->
+                <div class="w-full aspect-[2/1] bg-slate-950 rounded-xl border border-slate-800 relative overflow-hidden flex items-center justify-center p-1">
+                    <svg id="world-svg" viewBox="0 0 1000 500" class="w-full h-full">
+                        <!-- Precise SVG Continents -->
+                        <g fill="#1e293b" stroke="#334155" stroke-width="0.8" opacity="0.9">
+                            <!-- North America -->
+                            <path d="M 110,50 L 140,40 L 170,30 L 210,35 L 260,30 L 290,45 L 285,60 L 255,65 L 240,75 L 260,85 L 235,95 L 200,90 L 175,100 L 155,100 L 140,115 L 125,125 L 140,145 L 165,150 L 195,145 L 210,165 L 225,185 L 215,200 L 190,195 L 170,185 L 155,160 L 135,165 L 125,150 L 115,130 L 105,115 L 90,105 Z" />
+                            <!-- Greenland -->
+                            <path d="M 330,30 L 375,25 L 390,45 L 370,80 L 340,75 L 325,50 Z" />
+                            <!-- South America -->
+                            <path d="M 215,215 L 235,210 L 260,220 L 280,240 L 310,265 L 315,290 L 305,325 L 290,360 L 270,395 L 255,420 L 235,410 L 245,370 L 225,290 L 205,230 Z" />
+                            <!-- Europe -->
+                            <path d="M 450,75 L 480,65 L 510,60 L 530,70 L 520,95 L 495,100 L 470,120 L 450,135 L 435,100 Z" />
+                            <!-- Africa -->
+                            <path d="M 435,145 L 465,140 L 500,150 L 535,175 L 575,200 L 585,230 L 565,260 L 555,295 L 535,340 L 515,385 L 495,400 L 465,320 L 420,245 L 410,180 Z" />
+                            <!-- Madagascar -->
+                            <path d="M 575,325 L 585,320 L 590,355 L 570,350 Z" />
+                            <!-- Asia / Eurasia -->
+                            <path d="M 535,65 L 580,55 L 640,50 L 710,45 L 780,50 L 850,55 L 890,70 L 870,95 L 830,105 L 790,100 L 760,115 L 810,140 L 840,165 L 760,175 L 740,205 L 715,230 L 690,245 L 675,190 L 600,165 L 540,130 Z" />
+                            <!-- India Subcontinent -->
+                            <path d="M 655,185 L 685,180 L 710,210 L 695,255 L 670,275 L 655,240 Z" />
+                            <!-- Australia -->
+                            <path d="M 775,320 L 825,310 L 865,325 L 875,355 L 860,395 L 820,415 L 770,405 L 745,370 L 755,340 Z" />
+                        </g>
+
+                        <!-- Latitude Grid -->
+                        <g stroke="#334155" stroke-width="0.3" stroke-dasharray="3,3" opacity="0.4">
+                            <line x1="0" y1="250" x2="1000" y2="250" />
+                            <line x1="0" y1="125" x2="1000" y2="125" />
+                            <line x1="0" y1="375" x2="1000" y2="375" />
+                            <line x1="500" y1="0" x2="500" y2="500" />
+                        </g>
+
+                        <!-- Dynamic Interactive SVG Pins Container -->
+                        <g id="svg-pins-layer"></g>
+                    </svg>
+                </div>
+
+                <!-- Dues & Income Bar -->
+                <div class="flex items-center justify-between text-xs bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-800">
+                    <span class="text-slate-400">Annual UN Taskforce Funding:</span>
+                    <span class="mono font-bold text-emerald-400 flex items-center gap-2">
+                        +$<span id="ui-income">200</span>M / Year 
+                        <span id="ui-income-loss-tag" class="text-[10px] text-red-400 font-normal"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- ACTION CATALOG TABS (Preventive vs Standard Relief vs Major Projects) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl flex-grow">
+                <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                    <div class="flex gap-2">
+                        <button id="tab-btn-infra" onclick="switchTab('infra')" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-950 border border-cyan-700/60 text-cyan-300 transition">
+                            <i class="fa-solid fa-gavel mr-1.5"></i>Preventive Infra (1 AP)
+                        </button>
+                        <button id="tab-btn-repair" onclick="switchTab('repair')" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 border border-transparent text-slate-400 hover:text-slate-200 transition">
+                            <i class="fa-solid fa-kit-medical mr-1.5"></i>Regional Relief (1 AP)
+                        </button>
+                        <button id="tab-btn-major" onclick="switchTab('major')" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 border border-transparent text-slate-400 hover:text-slate-200 transition">
+                            <i class="fa-solid fa-shield-halved mr-1.5"></i>Major Projects (2 AP)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Preventive Upgrades (1 AP) -->
+                <div id="tab-content-infra" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+                <!-- Tab 2: Disaster Repairs (1 AP) -->
+                <div id="tab-content-repair" class="grid grid-cols-1 md:grid-cols-2 gap-3 hidden"></div>
+
+                <!-- Tab 3: Major High-Impact Projects (2 AP) -->
+                <div id="tab-content-major" class="grid grid-cols-1 gap-3 hidden"></div>
+            </div>
+
+            <!-- Action Bar: Next Year Button -->
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                <div>
+                    <p class="font-medium text-xs text-slate-200">Yearly Protocol Progress:</p>
+                    <p class="text-[11px] text-slate-400">Spend remaining AP/Budget or click to advance time.</p>
+                </div>
+                <button id="btn-next-year" onclick="advanceYear()" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-cyan-950 transition-all flex items-center justify-center gap-3">
+                    <span>ADVANCE TO YEAR <span id="ui-next-year-num">2</span></span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column: Telemetry & Regional Risk Cards (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+
+            <!-- Primary Dash Cards -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Trust Card -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] uppercase font-semibold text-slate-400">Global Trust</span>
+                        <i class="fa-solid fa-shield-heart text-cyan-400 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-baseline justify-between mb-1">
+                            <span class="mono text-xl font-bold text-white" id="ui-trust">85%</span>
+                            <span class="text-[10px]" id="ui-trust-trend">Stable</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div id="bar-trust" class="bg-cyan-500 h-full transition-all duration-500" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Casualties Card -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] uppercase font-semibold text-slate-400">Casualties</span>
+                        <i class="fa-solid fa-users-slash text-red-400 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="mono text-xl font-bold text-red-400" id="ui-casualties">0</div>
+                        <p class="text-[10px] text-slate-500">Lives lost / impacted</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Region Telemetry Cards (8 Regions) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <h2 class="text-xs uppercase font-bold tracking-wider text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                        Sector Damage Telemetry (8 Regions)
+                    </h2>
+                    <span class="text-[10px] mono text-slate-500">3-TIER SYSTEM</span>
+                </div>
+
+                <!-- Cards Stack -->
+                <div id="regions-container" class="space-y-2 max-h-[360px] overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- Command Action Log -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col flex-grow shadow-xl min-h-[180px]">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul text-slate-400"></i>
+                        Command Directives Log
+                    </h3>
+                </div>
+                <div id="log-container" class="space-y-1.5 overflow-y-auto max-h-[220px] text-xs mono">
+                    <div class="text-slate-500 italic p-2 bg-slate-950 rounded border border-slate-800">
+                        [YEAR 01] Global Crisis Command operational. SVG map pin telemetry connected. Red status nations cease UN funding.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CRISIS EVENT MODAL -->
+    <div id="event-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-red-800/80 rounded-2xl p-6 max-w-xl w-full shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2 text-red-400 font-bold text-xs">
+                    <i class="fa-solid fa-triangle-exclamation animate-pulse"></i>
+                    <span id="modal-tag">5-YEAR CRISIS EVENT</span>
+                </div>
+                <span class="text-xs text-slate-500 mono">Year <span id="modal-year">5</span>/50</span>
+            </div>
+
+            <div>
+                <h3 id="modal-title" class="text-lg font-bold text-white mb-2">Crisis Title</h3>
+                <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed">Crisis description goes here.</p>
+            </div>
+
+            <div id="modal-choices" class="space-y-2.5 mt-2">
+                <!-- Choice buttons injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER / FINAL REPORT MODAL -->
+    <div id="end-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-cyan-800/80 rounded-2xl p-6 max-w-xl w-full shadow-2xl flex flex-col gap-5 text-center">
+            <div>
+                <span class="text-xs uppercase font-bold text-cyan-400 tracking-widest">50-Year Climate Directive Complete</span>
+                <h2 class="text-2xl font-black text-white mt-1">Global Command Report</h2>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center">
+                <div class="text-xs text-slate-400 uppercase">Performance Evaluation Rank</div>
+                <div id="end-rank" class="mono text-5xl font-extrabold text-cyan-400 my-1">A</div>
+                <div id="end-rank-desc" class="text-sm font-semibold text-emerald-400">Master Resilient Leader</div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-left text-xs">
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-slate-500">Surviving Nations</div>
+                    <div id="end-surviving-countries" class="mono font-bold text-emerald-400 text-sm">8 / 8</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-slate-500">Total Casualties</div>
+                    <div id="end-casualties" class="mono font-bold text-red-400 text-sm">0</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-slate-500">Final Trust</div>
+                    <div id="end-trust" class="mono font-bold text-cyan-400 text-sm">85%</div>
+                </div>
+            </div>
+
+            <p id="end-summary-text" class="text-xs text-slate-300 leading-relaxed text-left bg-slate-950/50 p-3 rounded-lg border border-slate-800">
+                Summary of performance over the 50-year timeline.
+            </p>
+
+            <button onclick="resetGame()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition">
+                RESTART NEW 50-YEAR SIMULATION
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME ENGINE SCRIPT -->
+    <script>
+        /* --- GAME STATE --- */
+        const gameState = {
+            year: 1,
+            actionPoints: 2,
+            budget: 400,
+            baseDuesPerCountry: 25,
+            globalTemp: 1.10,
+            trust: 85,
+            casualties: 0,
+            activeTab: 'infra',
+            upgrades: {
+                firebreaks: 0,
+                wells: 0,
+                seawalls: 0,
+                chemicalSafety: 0,
+                earlyWarning: 0
+            },
+            regions: {
+                california: { name: "California (USA)", disaster: "🔥 Wildfires", category: "wildfire", damage: 20, statusTier: "GREEN", x: 145, y: 150 },
+                canada: { name: "Canada Boreal", disaster: "🔥 Wildfires", category: "wildfire", damage: 15, statusTier: "GREEN", x: 210, y: 80 },
+                australia: { name: "Australia Basin", disaster: "🔥 Fires & 🏜️ Drought", category: "wildfire", damage: 25, statusTier: "GREEN", x: 815, y: 360 },
+                hornAfrica: { name: "Horn of Africa", disaster: "🏜️ Mega Drought", category: "drought", damage: 30, statusTier: "GREEN", x: 565, y: 235 },
+                tuvalu: { name: "Tuvalu Atoll", disaster: "🌊 Sea-Level Rise", category: "flooding", damage: 25, statusTier: "GREEN", x: 935, y: 300 },
+                kiribati: { name: "Kiribati Islands", disaster: "🌊 Sea-Level Rise", category: "flooding", damage: 20, statusTier: "GREEN", x: 960, y: 250 },
+                pacificIslands: { name: "Pacific Islands", disaster: "🌊 Coastal Inundation", category: "flooding", damage: 20, statusTier: "GREEN", x: 890, y: 275 },
+                bhopal: { name: "Bhopal (India)", disaster: "🏭 Industrial Hazards", category: "chemical", damage: 20, statusTier: "GREEN", x: 675, y: 215 }
+            }
+        };
+
+        /* --- CATALOG DATA --- */
+        const infraCatalog = [
+            { id: 'firebreaks', name: 'Boreal & Canyon Firebreaks', desc: 'Protects California, Canada, Australia wildfire zones.', effectText: 'Reduces wildfire damage by -20%', baseCost: 75, icon: 'fa-fire-flame-curved' },
+            { id: 'wells', name: 'Deep Aquifers & Desalination', desc: 'Provides water reserves for Horn of Africa & Australia.', effectText: 'Reduces drought damage by -25%', baseCost: 80, icon: 'fa-droplet' },
+            { id: 'seawalls', name: 'Sea Dykes & Coral Restoration', desc: 'Protects Tuvalu, Kiribati, and Pacific Islands.', effectText: 'Reduces sea-level flood damage by -25%', baseCost: 85, icon: 'fa-water' },
+            { id: 'chemicalSafety', name: 'Hazmat Cryo-Cooling', desc: 'Secures Bhopal chemical storage plants against thermal leaks.', effectText: 'Reduces industrial chemical risk by -30%', baseCost: 70, icon: 'fa-industry' }
+        ];
+
+        const repairCatalog = [
+            { regionKey: 'california', name: 'California Fire Relief', cost: 45, icon: 'fa-kit-medical' },
+            { regionKey: 'canada', name: 'Canada Forest Restoration', cost: 45, icon: 'fa-kit-medical' },
+            { regionKey: 'australia', name: 'Australia Emergency Convoy', cost: 50, icon: 'fa-kit-medical' },
+            { regionKey: 'hornAfrica', name: 'Horn of Africa Water Aid', cost: 45, icon: 'fa-kit-medical' },
+            { regionKey: 'tuvalu', name: 'Tuvalu Coastal Pumping', cost: 40, icon: 'fa-kit-medical' },
+            { regionKey: 'kiribati', name: 'Kiribati Seawall Repair', cost: 40, icon: 'fa-kit-medical' },
+            { regionKey: 'pacificIslands', name: 'Pacific Emergency Dredging', cost: 40, icon: 'fa-kit-medical' },
+            { regionKey: 'bhopal', name: 'Bhopal Hazmat Decontamination', cost: 45, icon: 'fa-kit-medical' }
+        ];
+
+        const majorCatalog = [
+            { id: 'geoShield', name: 'Planetary Geo-Shield Grid', desc: 'Large scale atmospheric thermal management protecting ALL 8 regions.', effectText: 'Reduces damage by -20% across ALL global sectors simultaneously.', cost: 160, apCost: 2, icon: 'fa-shield-halved' },
+            { id: 'globalRelief', name: 'Global Emergency Airlift Net', desc: 'Mobilizes heavy cargo planes with desalination, fire suppression, and medical supplies.', effectText: 'Restores +15 Global Trust & mitigates pending crisis impact.', cost: 140, apCost: 2, icon: 'fa-plane-departure' }
+        ];
+
+        /* --- ACCELERATING CRISIS SCHEDULE DATA --- */
+        const majorEvents = {
+            5: { title: "Great Black Summer Wildfires", tag: "YEAR 5 CRISIS (5-YR CYCLE)", desc: "Heatwaves spark wildfire surges across Australia, California, and Canada.", choices: [
+                { text: "Deploy Emergency Super-Tanker Fleet ($120M)", cost: 120, action: () => { reduceRegionDamage('australia', 20); reduceRegionDamage('california', 20); logMessage("Spent $120M on aerial tankers. Wildfires stabilized.", "cyan"); } },
+                { text: "Protect Urban Perimeters Only ($60M)", cost: 60, action: () => { addRegionDamage('australia', 15); addRegionDamage('canada', 15); gameState.casualties += 12000; logMessage("Partial perimeter protection left rural zones scorched.", "amber"); } },
+                { text: "No Emergency Funding ($0M)", cost: 0, action: () => { addRegionDamage('australia', 35); addRegionDamage('california', 35); addRegionDamage('canada', 25); gameState.casualties += 35000; logMessage("Wildfires devastated multiple sectors!", "red"); } }
+            ]},
+            10: { title: "Horn of Africa Drought Emergency", tag: "YEAR 10 CRISIS (5-YR CYCLE)", desc: "Fifth consecutive rain failure risks widespread regional famine.", choices: [
+                { text: "Global Food & Desalination Lifeline ($130M)", cost: 130, action: () => { reduceRegionDamage('hornAfrica', 30); logMessage("Desalination lifeline prevented drought famine.", "cyan"); } },
+                { text: "Emergency Water Rationing ($60M)", cost: 60, action: () => { addRegionDamage('hornAfrica', 15); gameState.casualties += 18000; logMessage("Rationing maintained basic needs, but crops collapsed.", "amber"); } },
+                { text: "Humanitarian Warnings Only ($0M)", cost: 0, action: () => { addRegionDamage('hornAfrica', 45); gameState.casualties += 50000; logMessage("Horn of Africa suffered catastrophic famine damage!", "red"); } }
+            ]},
+            15: { title: "Pacific Atoll King Tide Surge", tag: "YEAR 15 CRISIS (5-YR CYCLE)", desc: "Unprecedented ocean tides submerge freshwater tables in Tuvalu, Kiribati, and Pacific Islands.", choices: [
+                { text: "Construct Raised Reef Dykes ($140M)", cost: 140, action: () => { reduceRegionDamage('tuvalu', 25); reduceRegionDamage('kiribati', 25); reduceRegionDamage('pacificIslands', 20); logMessage("Reef dykes preserved Pacific island freshwater.", "cyan"); } },
+                { text: "Managed Migration Air-Bridge ($70M)", cost: 70, action: () => { addRegionDamage('tuvalu', 20); gameState.casualties += 10000; logMessage("Islanders relocated, but coastal infrastructure flooded.", "amber"); } },
+                { text: "Delay Response ($0M)", cost: 0, action: () => { addRegionDamage('tuvalu', 45); addRegionDamage('kiribati', 45); gameState.casualties += 30000; logMessage("Pacific island sectors suffered major inundation!", "red"); } }
+            ]},
+            20: { title: "Bhopal Chemical Plant Thermal Overload", tag: "YEAR 20 CRISIS (5-YR CYCLE)", desc: "Extreme summer ambient heat triggers gas pressure buildup in Bhopal.", choices: [
+                { text: "Deploy Cryo-Robotics Containment ($130M)", cost: 130, action: () => { reduceRegionDamage('bhopal', 30); logMessage("Robotic cryo-units neutralized chemical leaks.", "cyan"); } },
+                { text: "Standard Water Cooling ($55M)", cost: 55, action: () => { addRegionDamage('bhopal', 20); gameState.casualties += 15000; logMessage("Gas leak contained with moderate casualties.", "amber"); } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('bhopal', 55); gameState.casualties += 45000; logMessage("Toxic gas release caused heavy casualties!", "red"); } }
+            ]},
+
+            // 3-Year Cycle Acceleration (Years 21-35)
+            23: { title: "Canadian Boreal Fire Burst", tag: "YEAR 23 CRISIS (3-YR ACCELERATION)", desc: "+1.45°C warming ignites vast boreal carbon sinks in Canada.", choices: [
+                { text: "International Fire Aviation Fleet ($140M)", cost: 140, action: () => { reduceRegionDamage('canada', 30); logMessage("Boreal fires extinguished.", "cyan"); } },
+                { text: "Perimeter Firebreaks ($70M)", cost: 70, action: () => { addRegionDamage('canada', 15); gameState.casualties += 8000; } },
+                { text: "Let Fires Burn Out ($0M)", cost: 0, action: () => { addRegionDamage('canada', 40); gameState.globalTemp += 0.04; gameState.casualties += 25000; } }
+            ]},
+            26: { title: "California Grid Collapse Fires", tag: "YEAR 26 CRISIS (3-YR ACCELERATION)", desc: "Grid failure ignites brushlands in California.", choices: [
+                { text: "Emergency Micro-Grid Subsidies ($130M)", cost: 130, action: () => { reduceRegionDamage('california', 25); logMessage("Micro-grids prevented fire outbreaks.", "cyan"); } },
+                { text: "Targeted Rolling Blackouts ($65M)", cost: 65, action: () => { addRegionDamage('california', 15); gameState.casualties += 7000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('california', 35); gameState.casualties += 22000; } }
+            ]},
+            29: { title: "Horn of Africa Aquifer Salinization", tag: "YEAR 29 CRISIS (3-YR ACCELERATION)", desc: "Ground heat contaminates East Africa drinking wells.", choices: [
+                { text: "Deploy Solar Desalination Nets ($150M)", cost: 150, action: () => { reduceRegionDamage('hornAfrica', 30); logMessage("Solar desalination saved water supply.", "cyan"); } },
+                { text: "Emergency Water Trucking ($75M)", cost: 75, action: () => { addRegionDamage('hornAfrica', 15); gameState.casualties += 12000; } },
+                { text: "No Allocation ($0M)", cost: 0, action: () => { addRegionDamage('hornAfrica', 40); gameState.casualties += 38000; } }
+            ]},
+            32: { title: "Pacific Ocean Conveyor Surge", tag: "YEAR 32 CRISIS (3-YR ACCELERATION)", desc: "Storm surges impact Tuvalu, Kiribati, and Pacific Islands.", choices: [
+                { text: "Deploy Floating Seawall Nets ($150M)", cost: 150, action: () => { reduceRegionDamage('tuvalu', 20); reduceRegionDamage('pacificIslands', 20); logMessage("Floating barriers absorbed ocean surge.", "cyan"); } },
+                { text: "Harbor Emergency Repairs ($75M)", cost: 75, action: () => { addRegionDamage('pacificIslands', 15); gameState.casualties += 14000; } },
+                { text: "No Allocation ($0M)", cost: 0, action: () => { addRegionDamage('tuvalu', 35); addRegionDamage('kiribati', 35); gameState.casualties += 45000; } }
+            ]},
+            35: { title: "Australia Basin Drought & Fire Wave", tag: "YEAR 35 CRISIS (3-YR ACCELERATION)", desc: "Compound river drought and coastal bushfires in Australia.", choices: [
+                { text: "Solar Water Grid & Fire Aviation ($160M)", cost: 160, action: () => { reduceRegionDamage('australia', 35); logMessage("Solar grid & fire fleet stabilized Australia.", "cyan"); } },
+                { text: "Water Tanker Emergency Fleet ($80M)", cost: 80, action: () => { addRegionDamage('australia', 15); gameState.casualties += 10000; } },
+                { text: "No Emergency Funds ($0M)", cost: 0, action: () => { addRegionDamage('australia', 45); gameState.casualties += 35000; } }
+            ]},
+
+            // 2-Year Cycle Acceleration (Years 36-45)
+            37: { title: "Bhopal Petrochemical Pipeline Pressure", tag: "YEAR 37 CRISIS (2-YR ACCELERATION)", desc: "Extreme ambient temperatures strain Bhopal gas tanks.", choices: [
+                { text: "Retrofit Cryo-Seals ($170M)", cost: 170, action: () => { reduceRegionDamage('bhopal', 35); logMessage("Retrofit cryo-seals secured Bhopal pipelines.", "cyan"); } },
+                { text: "Isolate High-Pressure Valves ($85M)", cost: 85, action: () => { addRegionDamage('bhopal', 15); gameState.casualties += 12000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('bhopal', 50); gameState.casualties += 40000; } }
+            ]},
+            39: { title: "Pacific Sinking Threshold", tag: "YEAR 39 CRISIS (2-YR ACCELERATION)", desc: "Extreme ocean rise threatens Tuvalu and Kiribati aquifers.", choices: [
+                { text: "Deploy Modular Floating Platforms ($170M)", cost: 170, action: () => { reduceRegionDamage('tuvalu', 30); reduceRegionDamage('kiribati', 30); logMessage("Floating platforms protected islanders.", "cyan"); } },
+                { text: "Emergency Relocation Support ($85M)", cost: 85, action: () => { addRegionDamage('tuvalu', 15); gameState.casualties += 9000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('tuvalu', 40); addRegionDamage('kiribati', 40); gameState.casualties += 38000; } }
+            ]},
+            41: { title: "North American Dual Boreal Firestorm", tag: "YEAR 41 CRISIS (2-YR ACCELERATION)", desc: "Cross-border fires hit Canada and California simultaneously.", choices: [
+                { text: "Joint Trans-Border Aerial Net ($180M)", cost: 180, action: () => { reduceRegionDamage('canada', 25); reduceRegionDamage('california', 25); logMessage("Trans-border aerial net contained firestorms.", "cyan"); } },
+                { text: "Regional Priorities Only ($90M)", cost: 90, action: () => { addRegionDamage('canada', 15); gameState.casualties += 14000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('canada', 35); addRegionDamage('california', 35); gameState.casualties += 42000; } }
+            ]},
+            43: { title: "Horn of Africa Desertification Surge", tag: "YEAR 43 CRISIS (2-YR ACCELERATION)", desc: "Expanding desert soil threatens complete agricultural collapse.", choices: [
+                { text: "Deploy Bio-Engineered Soil Seals ($180M)", cost: 180, action: () => { reduceRegionDamage('hornAfrica', 35); logMessage("Bio-soil seals halted desertification.", "cyan"); } },
+                { text: "Emergency Food Air-Bridge ($90M)", cost: 90, action: () => { addRegionDamage('hornAfrica', 15); gameState.casualties += 15000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('hornAfrica', 45); gameState.casualties += 45000; } }
+            ]},
+            45: { title: "Great Pacific Surge Barrier Rupture", tag: "YEAR 45 CRISIS (2-YR ACCELERATION)", desc: "Super-cyclones break ocean dykes in Tuvalu, Kiribati, and Pacific Islands.", choices: [
+                { text: "Reinforce Dykes with Carbon Weave ($190M)", cost: 190, action: () => { reduceRegionDamage('tuvalu', 30); reduceRegionDamage('kiribati', 30); reduceRegionDamage('pacificIslands', 30); logMessage("Carbon weave dykes held against super-cyclone.", "cyan"); } },
+                { text: "Harbor Relief Only ($95M)", cost: 95, action: () => { addRegionDamage('pacificIslands', 15); gameState.casualties += 12000; } },
+                { text: "Abandon Barriers ($0M)", cost: 0, action: () => { addRegionDamage('tuvalu', 45); addRegionDamage('kiribati', 45); gameState.casualties += 50000; } }
+            ]},
+
+            // 1-Year Cascade Cycle (Years 46-50)
+            46: { title: "Endgame Cascade: Global Heat Wave", tag: "YEAR 46 (1-YR ANNUAL CASCADE)", desc: "Temperature hits +2.50°C. Fires spike in California, Canada, and Australia.", choices: [
+                { text: "Global Aviation Net ($190M)", cost: 190, action: () => { reduceRegionDamage('california', 25); reduceRegionDamage('canada', 25); reduceRegionDamage('australia', 25); logMessage("Global aviation net mitigated heatwave fires.", "cyan"); } },
+                { text: "Single Sector Defense ($95M)", cost: 95, action: () => { reduceRegionDamage('california', 20); addRegionDamage('australia', 20); } },
+                { text: "Absorb Impact ($0M)", cost: 0, action: () => { addRegionDamage('california', 30); addRegionDamage('canada', 30); gameState.casualties += 40000; } }
+            ]},
+            47: { title: "Endgame Cascade: East African Drought", tag: "YEAR 47 (1-YR ANNUAL CASCADE)", desc: "Extreme heat dries remaining rivers in Horn of Africa.", choices: [
+                { text: "Emergency Desalination Airlift ($190M)", cost: 190, action: () => { reduceRegionDamage('hornAfrica', 40); logMessage("Desalination airlift stabilized water supply.", "cyan"); } },
+                { text: "Rationing Only ($95M)", cost: 95, action: () => { addRegionDamage('hornAfrica', 15); gameState.casualties += 15000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('hornAfrica', 50); gameState.casualties += 50000; } }
+            ]},
+            48: { title: "Endgame Cascade: Bhopal Industrial Leak Crisis", tag: "YEAR 48 (1-YR ANNUAL CASCADE)", desc: "Heatwaves threaten structural storage tanks in Bhopal.", choices: [
+                { text: "Cryo-Containment Airlift ($190M)", cost: 190, action: () => { reduceRegionDamage('bhopal', 40); logMessage("Cryo-containment stabilized Bhopal complex.", "cyan"); } },
+                { text: "Local Evacuation Support ($95M)", cost: 95, action: () => { addRegionDamage('bhopal', 20); gameState.casualties += 18000; } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('bhopal', 55); gameState.casualties += 55000; } }
+            ]},
+            49: { title: "Endgame Cascade: Super-Tide Island Submergence", tag: "YEAR 49 (1-YR ANNUAL CASCADE)", desc: "High tides flood remaining seawalls across all Pacific island sectors.", choices: [
+                { text: "Emergency Pumping & Dyke Nets ($200M)", cost: 200, action: () => { reduceRegionDamage('tuvalu', 30); reduceRegionDamage('kiribati', 30); reduceRegionDamage('pacificIslands', 30); logMessage("Emergency pumps preserved island territories.", "cyan"); } },
+                { text: "Partial Pumping Aid ($100M)", cost: 100, action: () => { addRegionDamage('tuvalu', 20); } },
+                { text: "No Action ($0M)", cost: 0, action: () => { addRegionDamage('tuvalu', 45); addRegionDamage('kiribati', 45); gameState.casualties += 60000; } }
+            ]},
+            50: { title: "Year 50 Climate Convergence Storms", tag: "YEAR 50 FINAL CONVERGENCE", desc: "Five decades of climate strain culminate in simultaneous global storms.", choices: [
+                { text: "Planetary Shield Emergency Net ($200M)", cost: 200, action: () => { Object.keys(gameState.regions).forEach(k => reduceRegionDamage(k, 25)); logMessage("Planetary shield protocols protected remaining global sectors.", "cyan"); } },
+                { text: "Target Aid to Surviving Nations ($100M)", cost: 100, action: () => { gameState.casualties += 20000; } },
+                { text: "Rely Entirely on Infrastructure ($0M)", cost: 0, action: () => { gameState.casualties += 45000; } }
+            ]}
+        };
+
+        /* --- HELPER FUNCTIONS --- */
+        function getNextEventYear() {
+            const current = gameState.year;
+            const eventYears = Object.keys(majorEvents).map(Number).sort((a, b) => a - b);
+            for (let yr of eventYears) {
+                if (yr >= current) return yr;
+            }
+            return 50;
+        }
+
+        function updateRegionTiers() {
+            Object.keys(gameState.regions).forEach(key => {
+                const reg = gameState.regions[key];
+                if (reg.damage >= 80) {
+                    if (reg.statusTier !== "RED") {
+                        reg.statusTier = "RED";
+                        logMessage(`CRITICAL: ${reg.name} hit 80%+ damage and HAS PULLED OUT of the UN Taskforce! Annual revenue reduced by -$${gameState.baseDuesPerCountry}M.`, "red");
+                    }
+                } else if (reg.damage >= 40) {
+                    reg.statusTier = "YELLOW";
+                } else {
+                    reg.statusTier = "GREEN";
+                }
+            });
+        }
+
+        function calculateAnnualIncome() {
+            let activeCount = 0;
+            Object.keys(gameState.regions).forEach(key => {
+                if (gameState.regions[key].statusTier !== "RED") {
+                    activeCount++;
+                }
+            });
+            return activeCount * gameState.baseDuesPerCountry;
+        }
+
+        function addRegionDamage(regionKey, amount) {
+            if (gameState.regions[regionKey]) {
+                gameState.regions[regionKey].damage = Math.min(100, gameState.regions[regionKey].damage + amount);
+                updateRegionTiers();
+            }
+        }
+
+        function reduceRegionDamage(regionKey, amount) {
+            if (gameState.regions[regionKey]) {
+                const oldTier = gameState.regions[regionKey].statusTier;
+                gameState.regions[regionKey].damage = Math.max(0, gameState.regions[regionKey].damage - amount);
+                updateRegionTiers();
+                if (oldTier === "RED" && gameState.regions[regionKey].statusTier !== "RED") {
+                    logMessage(`RE-ENTRY SUCCESS: ${gameState.regions[regionKey].name} stabilized and RE-JOINED the UN Taskforce! Dues restored.`, "cyan");
+                }
+            }
+        }
+
+        /* --- UI & MAP RENDERING --- */
+        function updateUI() {
+            updateRegionTiers();
+            const currentIncome = calculateAnnualIncome();
+
+            document.getElementById('ui-year').innerText = gameState.year;
+            document.getElementById('ui-next-year-num').innerText = Math.min(50, gameState.year + 1);
+            document.getElementById('ui-ap').innerText = gameState.actionPoints;
+            document.getElementById('ui-temp').innerText = gameState.globalTemp.toFixed(2);
+            document.getElementById('ui-budget').innerText = gameState.budget;
+            document.getElementById('ui-trust').innerText = `${Math.max(0, Math.min(100, gameState.trust))}%`;
+            document.getElementById('bar-trust').style.width = `${Math.max(0, Math.min(100, gameState.trust))}%`;
+            document.getElementById('ui-casualties').innerText = gameState.casualties.toLocaleString();
+            document.getElementById('ui-income').innerText = currentIncome;
+
+            // HUD Next Event Indicator
+            const nextYr = getNextEventYear();
+            const eventTag = document.getElementById('ui-next-event-tag');
+            if (nextYr === gameState.year) {
+                eventTag.innerHTML = `<i class="fa-solid fa-triangle-exclamation animate-pulse"></i> STRIKING NOW`;
+                eventTag.className = "mono text-xs font-bold text-red-500 animate-pulse";
+            } else {
+                eventTag.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Year ${nextYr} (${nextYr - gameState.year}y)`;
+                eventTag.className = "mono text-xs font-bold text-amber-400";
+            }
+
+            // Lost dues alert
+            const redCountries = Object.values(gameState.regions).filter(r => r.statusTier === "RED").length;
+            const lossTag = document.getElementById('ui-income-loss-tag');
+            if (redCountries > 0) {
+                lossTag.innerText = `(-$${redCountries * gameState.baseDuesPerCountry}M from ${redCountries} Red Nation${redCountries > 1 ? 's' : ''})`;
+            } else {
+                lossTag.innerText = `(All 8 Nations Active)`;
+            }
+
+            renderSvgPins();
+            renderRegions();
+            renderInfraTab();
+            renderRepairTab();
+            renderMajorTab();
+        }
+
+        function renderSvgPins() {
+            const layer = document.getElementById('svg-pins-layer');
+            layer.innerHTML = '';
+
+            Object.keys(gameState.regions).forEach(key => {
+                const reg = gameState.regions[key];
+                let pinColor = "#10b981"; // GREEN
+                if (reg.statusTier === "YELLOW") pinColor = "#f59e0b"; // YELLOW
+                if (reg.statusTier === "RED") pinColor = "#ef4444"; // RED
+
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("class", "map-pin");
+                g.setAttribute("onclick", `selectRegionFromMap('${key}')`);
+
+                // Beacon Ring
+                const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                pulse.setAttribute("cx", reg.x);
+                pulse.setAttribute("cy", reg.y);
+                pulse.setAttribute("r", reg.statusTier === "RED" ? "12" : "8");
+                pulse.setAttribute("fill", pinColor);
+                pulse.setAttribute("opacity", "0.3");
+                g.appendChild(pulse);
+
+                // Core Pin
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", reg.x);
+                circle.setAttribute("cy", reg.y);
+                circle.setAttribute("r", "6");
+                circle.setAttribute("fill", pinColor);
+                circle.setAttribute("stroke", "#ffffff");
+                circle.setAttribute("stroke-width", "1.5");
+                g.appendChild(circle);
+
+                // Text Pin Label
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", reg.x + 8);
+                text.setAttribute("y", reg.y + 3);
+                text.setAttribute("fill", reg.statusTier === "RED" ? "#fca5a5" : "#f1f5f9");
+                text.setAttribute("font-size", "9.5");
+                text.setAttribute("font-weight", "bold");
+                text.setAttribute("font-family", "JetBrains Mono");
+                text.textContent = `${reg.name.split(' ')[0]} ${reg.damage}%`;
+                g.appendChild(text);
+
+                layer.appendChild(g);
+            });
+        }
+
+        function selectRegionFromMap(key) {
+            switchTab('repair');
+            logMessage(`Targeted sector selected on map: ${gameState.regions[key].name} (Damage: ${gameState.regions[key].damage}%)`, "cyan");
+        }
+
+        function switchTab(tab) {
+            gameState.activeTab = tab;
+            const btnInfra = document.getElementById('tab-btn-infra');
+            const btnRepair = document.getElementById('tab-btn-repair');
+            const btnMajor = document.getElementById('tab-btn-major');
+            
+            const contentInfra = document.getElementById('tab-content-infra');
+            const contentRepair = document.getElementById('tab-content-repair');
+            const contentMajor = document.getElementById('tab-content-major');
+
+            btnInfra.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 border border-transparent text-slate-400 transition";
+            btnRepair.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 border border-transparent text-slate-400 transition";
+            btnMajor.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 border border-transparent text-slate-400 transition";
+
+            contentInfra.classList.add('hidden');
+            contentRepair.classList.add('hidden');
+            contentMajor.classList.add('hidden');
+
+            if (tab === 'infra') {
+                btnInfra.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-950 border border-cyan-700/60 text-cyan-300 transition";
+                contentInfra.classList.remove('hidden');
+            } else if (tab === 'repair') {
+                btnRepair.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-950 border border-cyan-700/60 text-cyan-300 transition";
+                contentRepair.classList.remove('hidden');
+            } else {
+                btnMajor.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-cyan-950 border border-cyan-700/60 text-cyan-300 transition";
+                contentMajor.classList.remove('hidden');
+            }
+        }
+
+        function renderRegions() {
+            const container = document.getElementById('regions-container');
+            container.innerHTML = '';
+
+            Object.keys(gameState.regions).forEach(key => {
+                const reg = gameState.regions[key];
+                let badgeBg = "bg-emerald-950/80 text-emerald-400 border-emerald-800/80";
+                let badgeText = "TIER 1: GREEN";
+
+                if (reg.statusTier === "YELLOW") {
+                    badgeBg = "bg-amber-950/80 text-amber-400 border-amber-800/80";
+                    badgeText = "TIER 2: YELLOW";
+                } else if (reg.statusTier === "RED") {
+                    badgeBg = "bg-red-950/80 text-red-400 border-red-800/80 animate-pulse";
+                    badgeText = "TIER 3: RED (PULLED OUT)";
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 flex flex-col gap-1.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-xs text-white">${reg.name}</div>
+                            <div class="text-[10px] text-slate-400">${reg.disaster}</div>
+                        </div>
+                        <span class="text-[9px] mono px-2 py-0.5 rounded border ${badgeBg}">${badgeText}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-400">
+                        <span>Damage: <strong class="${reg.damage >= 80 ? 'text-red-400' : reg.damage >= 40 ? 'text-amber-400' : 'text-emerald-400'}">${reg.damage}%</strong></span>
+                        <span>UN Dues: <strong>${reg.statusTier === 'RED' ? '$0M' : '+$25M/yr'}</strong></span>
+                    </div>
+                    <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                        <div class="${reg.statusTier === 'RED' ? 'bg-red-500' : reg.statusTier === 'YELLOW' ? 'bg-amber-500' : 'bg-emerald-500'} h-full transition-all" style="width: ${reg.damage}%"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderInfraTab() {
+            const container = document.getElementById('tab-content-infra');
+            container.innerHTML = '';
+
+            infraCatalog.forEach(item => {
+                const currentLvl = gameState.upgrades[item.id] || 0;
+                const cost = Math.round(item.baseCost * (1 + currentLvl * 0.4));
+                const isMax = currentLvl >= 3;
+                const canAfford = gameState.budget >= cost && gameState.actionPoints >= 1 && !isMax;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col justify-between gap-2";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                                <i class="fa-solid ${item.icon} text-cyan-400"></i> ${item.name}
+                            </h4>
+                            <span class="text-[10px] mono px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300">Lvl ${currentLvl}/3</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mb-1 leading-tight">${item.desc}</p>
+                        <p class="text-[10px] text-cyan-400 font-medium">${item.effectText}</p>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-900 pt-2 mt-1">
+                        <span class="mono text-xs font-bold text-emerald-400">${isMax ? 'MAXED' : `$${cost}M + [1 AP]`}</span>
+                        <button onclick="buyUpgrade('${item.id}', ${cost})" ${(!canAfford || isMax) ? 'disabled' : ''}
+                            class="px-3 py-1.5 text-xs font-bold rounded-lg ${isMax ? 'bg-slate-800 text-slate-500' : canAfford ? 'bg-cyan-600 hover:bg-cyan-500 text-white shadow' : 'bg-slate-800 text-slate-600 cursor-not-allowed'} transition">
+                            ${isMax ? 'Max Level' : 'Upgrade [1 AP]'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderRepairTab() {
+            const container = document.getElementById('tab-content-repair');
+            container.innerHTML = '';
+
+            repairCatalog.forEach(item => {
+                const reg = gameState.regions[item.regionKey];
+                const isRed = reg.statusTier === "RED";
+                const canAfford = gameState.budget >= item.cost && gameState.actionPoints >= 1;
+
+                const card = document.createElement('div');
+                card.className = `bg-slate-950 border ${isRed ? 'border-red-900/60' : 'border-slate-800'} rounded-xl p-3 flex flex-col justify-between gap-2`;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                                <i class="fa-solid ${item.icon} ${isRed ? 'text-red-400' : 'text-amber-400'}"></i> ${item.name}
+                            </h4>
+                            <span class="text-[9px] mono px-1.5 py-0.5 rounded border ${isRed ? 'bg-red-950 text-red-400 border-red-800' : 'bg-slate-900 text-slate-300 border-slate-800'}">${reg.damage}% Damage</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mb-1 leading-tight">${isRed ? 'CRITICAL: Region has PULLED OUT! Deploy relief to restore dues.' : 'Reduces region disaster damage by -30%.'}</p>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-900 pt-2 mt-1">
+                        <span class="mono text-xs font-bold text-emerald-400">$${item.cost}M + [1 AP]</span>
+                        <button onclick="buyRepair('${item.regionKey}', ${item.cost})" ${!canAfford ? 'disabled' : ''}
+                            class="px-3 py-1.5 text-xs font-bold rounded-lg ${canAfford ? (isRed ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-amber-600 hover:bg-amber-500 text-white') : 'bg-slate-800 text-slate-600 cursor-not-allowed'} transition">
+                            ${isRed ? 'Re-Entry [1 AP]' : 'Relief [1 AP]'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMajorTab() {
+            const container = document.getElementById('tab-content-major');
+            container.innerHTML = '';
+
+            majorCatalog.forEach(item => {
+                const canAfford = gameState.budget >= item.cost && gameState.actionPoints >= 2;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-cyan-800/60 rounded-xl p-3.5 flex flex-col justify-between gap-2 shadow-lg";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h4 class="font-bold text-sm text-cyan-300 flex items-center gap-2">
+                                <i class="fa-solid ${item.icon}"></i> ${item.name}
+                            </h4>
+                            <span class="text-[10px] mono font-bold px-2 py-0.5 bg-amber-950 text-amber-400 border border-amber-800 rounded">MAJOR PROJECT (2 AP)</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-1 leading-relaxed">${item.desc}</p>
+                        <p class="text-xs text-emerald-400 font-semibold"><i class="fa-solid fa-bolt mr-1"></i>${item.effectText}</p>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-900 pt-2 mt-1">
+                        <span class="mono text-sm font-bold text-emerald-400">$${item.cost}M + [2 AP]</span>
+                        <button onclick="buyMajorProject('${item.id}', ${item.cost})" ${!canAfford ? 'disabled' : ''}
+                            class="px-4 py-2 text-xs font-bold rounded-lg ${canAfford ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-md' : 'bg-slate-800 text-slate-600 cursor-not-allowed'} transition">
+                            Execute Major Project [2 AP]
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /* --- GAME ACTIONS --- */
+        function buyUpgrade(id, cost) {
+            if (gameState.budget >= cost && gameState.actionPoints >= 1 && (gameState.upgrades[id] || 0) < 3) {
+                gameState.budget -= cost;
+                gameState.actionPoints -= 1;
+                gameState.upgrades[id] = (gameState.upgrades[id] || 0) + 1;
+
+                if (id === 'firebreaks') { reduceRegionDamage('california', 15); reduceRegionDamage('canada', 15); reduceRegionDamage('australia', 15); }
+                if (id === 'wells') { reduceRegionDamage('hornAfrica', 20); reduceRegionDamage('australia', 15); }
+                if (id === 'seawalls') { reduceRegionDamage('tuvalu', 20); reduceRegionDamage('kiribati', 20); reduceRegionDamage('pacificIslands', 20); }
+                if (id === 'chemicalSafety') { reduceRegionDamage('bhopal', 25); }
+
+                logMessage(`Upgraded ${infraCatalog.find(i=>i.id===id).name} to Lvl ${gameState.upgrades[id]}. (-$${cost}M, -1 AP)`, "cyan");
+                updateUI();
+            }
+        }
+
+        function buyRepair(regionKey, cost) {
+            if (gameState.budget >= cost && gameState.actionPoints >= 1) {
+                gameState.budget -= cost;
+                gameState.actionPoints -= 1;
+                reduceRegionDamage(regionKey, 30);
+                logMessage(`Dispatched emergency relief to ${gameState.regions[regionKey].name}. Damage reduced -30%. (-$${cost}M, -1 AP)`, "amber");
+                updateUI();
+            }
+        }
+
+        function buyMajorProject(id, cost) {
+            if (gameState.budget >= cost && gameState.actionPoints >= 2) {
+                gameState.budget -= cost;
+                gameState.actionPoints -= 2;
+
+                if (id === 'geoShield') {
+                    Object.keys(gameState.regions).forEach(k => reduceRegionDamage(k, 20));
+                    logMessage(`EXECUTED MAJOR PROJECT: Planetary Geo-Shield Grid activated! Reduced damage by -20% across ALL 8 regions. (-$${cost}M, -2 AP)`, "cyan");
+                } else if (id === 'globalRelief') {
+                    gameState.trust = Math.min(100, gameState.trust + 15);
+                    Object.keys(gameState.regions).forEach(k => reduceRegionDamage(k, 10));
+                    logMessage(`EXECUTED MAJOR PROJECT: Global Emergency Airlift mobilized! Restored +15 Global Trust. (-$${cost}M, -2 AP)`, "cyan");
+                }
+                updateUI();
+            }
+        }
+
+        function logMessage(text, color = "default") {
+            const container = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            let colorClasses = "text-slate-300 border-slate-800";
+            if (color === "cyan") colorClasses = "text-cyan-300 border-cyan-900/60 bg-cyan-950/20";
+            if (color === "amber") colorClasses = "text-amber-300 border-amber-900/60 bg-amber-950/20";
+            if (color === "red") colorClasses = "text-red-300 border-red-900/60 bg-red-950/20";
+
+            entry.className = `p-1.5 rounded border text-[11px] leading-relaxed ${colorClasses}`;
+            entry.innerHTML = `<span class="text-slate-500 font-bold">[Yr ${gameState.year}]</span> ${text}`;
+            container.prepend(entry);
+        }
+
+        /* --- TIME ADVANCEMENT LOGIC --- */
+        function advanceYear() {
+            if (gameState.year >= 50) {
+                triggerEndGame();
+                return;
+            }
+
+            gameState.year++;
+            gameState.actionPoints = 2; // Refill AP to 2 each year
+
+            // 1. Collect annual dues from active nations
+            const income = calculateAnnualIncome();
+            gameState.budget += income;
+
+            // 2. Climate temperature escalation
+            const tempIncrement = 0.02 + (gameState.year > 35 ? 0.025 : gameState.year > 20 ? 0.015 : 0.008);
+            gameState.globalTemp += tempIncrement;
+
+            // 3. Natural disaster damage escalation across 8 regions
+            Object.keys(gameState.regions).forEach(key => {
+                const reg = gameState.regions[key];
+                let mitigation = 0;
+                if (reg.category === 'wildfire') mitigation = gameState.upgrades.firebreaks * 2.5;
+                if (reg.category === 'drought') mitigation = gameState.upgrades.wells * 3.0;
+                if (reg.category === 'flooding') mitigation = gameState.upgrades.seawalls * 3.0;
+                if (reg.category === 'chemical') mitigation = gameState.upgrades.chemicalSafety * 3.5;
+
+                const baseEscalation = (gameState.globalTemp * 2.2) - mitigation;
+                addRegionDamage(key, Math.max(2, Math.round(baseEscalation)));
+            });
+
+            // 4. Annual casualties
+            const keys = Object.keys(gameState.regions);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            if (gameState.regions[randomKey].damage > 40) {
+                const loss = Math.floor(Math.random() * 2500) + 1200;
+                gameState.casualties += loss;
+                gameState.trust = Math.max(0, gameState.trust - 1);
+            }
+
+            logMessage(`Advanced to Year ${gameState.year}. AP refilled (2/2). Nations contributed +$${income}M. Temp rose +${tempIncrement.toFixed(2)}°C.`, "default");
+
+            // 5. Trigger Major Event Modal if scheduled for this year
+            if (majorEvents[gameState.year]) {
+                showMajorEventModal(gameState.year);
+            }
+
+            updateUI();
+        }
+
+        /* --- MODALS LOGIC --- */
+        function showMajorEventModal(year) {
+            const eventData = majorEvents[year];
+            if (!eventData) return;
+
+            document.getElementById('modal-year').innerText = year;
+            document.getElementById('modal-tag').innerText = eventData.tag;
+            document.getElementById('modal-title').innerText = eventData.title;
+            document.getElementById('modal-desc').innerText = eventData.desc;
+
+            const choicesBox = document.getElementById('modal-choices');
+            choicesBox.innerHTML = '';
+
+            eventData.choices.forEach(c => {
+                const canAfford = gameState.budget >= c.cost;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${canAfford ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white' : 'bg-slate-950 border-slate-800 text-slate-500 opacity-70 cursor-not-allowed'}`;
+                
+                btn.onclick = () => {
+                    if (canAfford) {
+                        gameState.budget -= c.cost;
+                        c.action();
+                        closeModal();
+                        updateUI();
+                    }
+                };
+
+                btn.innerHTML = `
+                    <span class="text-xs font-semibold">${c.text}</span>
+                    <span class="mono text-xs font-bold px-2.5 py-1 rounded ${c.cost > 0 ? (canAfford ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' : 'bg-slate-900 text-slate-600') : 'bg-slate-700 text-slate-300'}">
+                        ${c.cost > 0 ? `$${c.cost}M` : 'FREE / NO FUNDS'}
+                    </span>
+                `;
+                choicesBox.appendChild(btn);
+            });
+
+            document.getElementById('event-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('event-modal').classList.add('hidden');
+        }
+
+        function triggerEndGame() {
+            const survivingCountries = Object.values(gameState.regions).filter(r => r.statusTier !== "RED").length;
+            let rank = 'B';
+            let rankTitle = 'Crisis Survivor';
+
+            if (survivingCountries >= 7 && gameState.trust >= 75) { rank = 'S'; rankTitle = 'Planetary Savior'; }
+            else if (survivingCountries >= 5) { rank = 'A'; rankTitle = 'Master Resilient Leader'; }
+            else if (survivingCountries >= 3) { rank = 'C'; rankTitle = 'Hard-pressed Custodian'; }
+            else { rank = 'D'; rankTitle = 'Systemic Collapse'; }
+
+            document.getElementById('end-rank').innerText = rank;
+            document.getElementById('end-rank-desc').innerText = rankTitle;
+            document.getElementById('end-surviving-countries').innerText = `${survivingCountries} / 8`;
+            document.getElementById('end-casualties').innerText = gameState.casualties.toLocaleString();
+            document.getElementById('end-trust').innerText = `${gameState.trust}%`;
+
+            document.getElementById('end-summary-text').innerText = `Over 50 years ending at +${gameState.globalTemp.toFixed(2)}°C, your agency retained ${survivingCountries} of 8 nations in the UN Taskforce. Total casualties stood at ${gameState.casualties.toLocaleString()}.`;
+
+            document.getElementById('end-modal').classList.remove('hidden');
+        }
+
+        function confirmRestart() {
+            if (confirm("Restart simulation back to Year 1?")) resetGame();
+        }
+
+        function resetGame() {
+            gameState.year = 1;
+            gameState.actionPoints = 2;
+            gameState.budget = 400;
+            gameState.globalTemp = 1.10;
+            gameState.trust = 85;
+            gameState.casualties = 0;
+            gameState.upgrades = { firebreaks: 0, wells: 0, seawalls: 0, chemicalSafety: 0, earlyWarning: 0 };
+            
+            Object.keys(gameState.regions).forEach(k => {
+                gameState.regions[k].damage = 15 + Math.floor(Math.random() * 15);
+                gameState.regions[k].statusTier = "GREEN";
+            });
+
+            document.getElementById('end-modal').classList.add('hidden');
+            document.getElementById('log-container').innerHTML = `
+                <div class="text-slate-500 italic p-2 bg-slate-950 rounded border border-slate-800">
+                    [YEAR 01] Command directive initialized. SVG map pins online.
+                </div>
+            `;
+            updateUI();
+        }
+
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
